@@ -1,0 +1,38 @@
+library(sde)
+
+a <- 0.5
+beta <- 0.10
+alpha <- 0.50
+delta <- 0.05
+mu <- 0.5
+gamma <- 0.0003
+b <- 0.205
+c <- 0.308
+sigma <- 0.2
+
+dt <- 0.1
+T <- 100
+n <- T / dt
+
+s <- numeric(n)
+i <- numeric(n)
+r <- numeric(n)
+
+s[1] <- 0.4
+i[1] <- 0.5
+r[1] <- 0.1
+
+for (t in 2:n) {
+  ds <- (a - c * s[t - 1] * i[t - 1] * (1 + gamma * i[t - 1]) - mu * s[t - 1] + alpha * r[t - 1]) * dt - sigma * c * s[t - 1] * (1 + gamma * i[t - 1]) * i[t - 1] * sqrt(dt) * rnorm(1)
+  di <- (c * s[t - 1] * i[t - 1] * (1 + gamma * i[t - 1]) - (beta + mu + delta - b) * i[t - 1]) * dt + sigma * c * s[t - 1] * (1 + gamma * i[t - 1]) * i[t - 1] * sqrt(dt) * rnorm(1)
+  dr <- (beta * i[t - 1] - (alpha + mu) * r[t - 1]) * dt
+  
+  s[t] <- s[t - 1] + ds
+  i[t] <- i[t - 1] + di
+  r[t] <- r[t - 1] + dr
+}
+
+plot(seq(0, T, dt), s, type = "l", col = "blue", xlab = "Time", ylab = "Population", ylim = c(0, 1), main = "Stochastic Model")
+lines(seq(0, T, dt), i, col = "red")
+lines(seq(0, T, dt), r, col = "green")
+legend("topright", legend = c("s[t]", "i[t]", "r[t]"), col = c("blue", "red", "green"), lty = 1)
